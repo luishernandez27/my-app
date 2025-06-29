@@ -4,7 +4,7 @@ Sistema de autenticación con OAuth 2.0 (Google) y JWT, con pruebas automatizada
 
 ---
 
-## 📋 Contenidos
+##  Contenidos
 
 1. [Descripción](#descripción)  
 2. [Tecnologías](#tecnologías)  
