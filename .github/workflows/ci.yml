@@ -1,6 +1,5 @@
 name: CI Pipeline
 
-# Se dispara en push o pull_request sobre main
 on:
   push:
     branches:
@@ -10,16 +9,16 @@ on:
       - main
 
 jobs:
-  # 1) Tests del backend con Jest
   backend-tests:
-    name: 🧪 Backend Tests
+    name:  Backend Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
-        with: node-version: 18
+        with:
+          node-version: 18
 
       - name: Install dependencies (backend)
         working-directory: backend
@@ -29,9 +28,8 @@ jobs:
         working-directory: backend
         run: npm test -- --detectOpenHandles --forceExit
 
-  # 2) Tests del frontend con Jest
   frontend-tests:
-    name: 🖥️ Frontend Tests
+    name:  Frontend Tests
     runs-on: ubuntu-latest
     needs: backend-tests
     steps:
@@ -39,7 +37,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
-        with: node-version: 18
+        with:
+          node-version: 18
 
       - name: Install dependencies (frontend)
         working-directory: frontend
@@ -49,40 +48,46 @@ jobs:
         working-directory: frontend
         run: npm test
 
-  # 3) Pruebas E2E con Cypress levantando backend y frontend
   e2e-tests:
-    name: 🌐 End-to-End Tests
+    name:  End-to-End Tests
     runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests]
-    services:
-      backend:
-        image: node:18
-        ports: ["4000:4000"]
-        options: >-
-          --workdir /srv/backend
-          --mount type=bind,source=${{ github.workspace }}/backend,target=/srv/backend
-        command: bash -lc "npm ci && npm run dev"
-
-      frontend:
-        image: node:18
-        ports: ["5173:5173"]
-        options: >-
-          --workdir /srv/frontend
-          --mount type=bind,source=${{ github.workspace }}/frontend,target=/srv/frontend
-        command: bash -lc "npm ci && npm run dev"
-
+    needs:
+      - backend-tests
+      - frontend-tests
     steps:
       - uses: actions/checkout@v4
 
-      - name: Wait for services to be ready
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      
+      - name: Start backend server
+        working-directory: backend
+        run: |
+          npm ci
+          npm run dev &
+      
+      
+      - name: Start frontend server
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run dev &
+
+      
+      - name: Wait for services
         run: |
           npx wait-on http://localhost:4000/api/auth/health
           npx wait-on http://localhost:5173
 
+      
       - name: Install Cypress
         working-directory: frontend
         run: npm ci
 
+      
       - name: Run Cypress E2E
         working-directory: frontend
         run: npx cypress run --spec "cypress/e2e/auth.cy.js"
