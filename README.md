@@ -37,6 +37,6 @@ Esta aplicación implementa autenticación de usuarios mediante OAuth 2.0 (Googl
 
 1. Clona el repositorio  
    ```bash
-   git clone https://github.com/tu-usuario/tu-repo.git
+   git clone https://github.com/luishernandez27/my-app.git
    cd tu-repo
 
