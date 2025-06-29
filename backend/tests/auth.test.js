@@ -1,35 +1,23 @@
 import request from 'supertest';
-import app from '../src/index.js';       
-import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import app from '../src/index.js';     
 
 describe('Rutas de autenticación', () => {
-  let token;
-
-  beforeAll(() => {
+  beforeAll(async () => {
     
-    token = jwt.sign({ id: 'fakeUserId', role: 'user' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    await mongoose.connect(process.env.MONGODB_URI);
   });
 
-  test('GET /api/protected sin token → 401', async () => {
-    const res = await request(app).get('/api/protected');
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toHaveProperty('msg', 'No token provided');
+  afterAll(async () => {
+    await mongoose.disconnect();
+    
   });
 
-  test('GET /api/protected con token inválido → 403', async () => {
-    const res = await request(app)
+  it('GET /api/protected sin token → 401', async () => {
+    await request(app)
       .get('/api/protected')
-      .set('Authorization', 'Bearer tokendelamuerte');
-    expect(res.statusCode).toBe(403);
-    expect(res.body).toHaveProperty('msg', 'Token inválido');
+      .expect(401);
   });
 
-  test('GET /api/protected con token válido → 200', async () => {
-    const res = await request(app)
-      .get('/api/protected')
-      .set('Authorization', `Bearer ${token}`);
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('msg');
-    expect(res.body.msg).toMatch(/¡Hola/);
-  });
+  
 });

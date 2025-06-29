@@ -1,3 +1,4 @@
+// src/index.js
 import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
@@ -7,7 +8,7 @@ import cookieParser from 'cookie-parser';
 
 import './config/passport.js';
 import authRoutes from './routes/auth.routes.js';
-import verifyToken  from './middleware/verifyToken.js';
+import verifyToken from './middleware/verifyToken.js';
 
 const app = express();
 
@@ -24,16 +25,16 @@ app.get('/api/protected', verifyToken, (req, res) => {
 });
 
 
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    if (process.env.NODE_ENV !== 'test') {
+      const port = process.env.PORT || 4000;
+      app.listen(port, () =>
+        console.log(`Servidor escuchando en puerto ${port}`)
+      );
+    }
+  })
+  .catch(console.error);
+
+
 export default app;
-
-// Conexión a MongoDB
-if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(process.env.MONGODB_URI)
-    .then(() => {
-      app.listen(process.env.PORT, () => {
-        console.log(`Servidor en puerto ${process.env.PORT}`);
-      });
-    })
-    .catch(err => console.error('Error al conectar con MongoDB:', err));
-}
-
