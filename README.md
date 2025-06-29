@@ -29,8 +29,7 @@ Esta aplicación implementa autenticación de usuarios mediante OAuth 2.0 (Googl
 - **Backend**: Node.js, Express, Passport-Google-OAuth20, jsonwebtoken, MongoDB  
 - **Frontend**: React, Vite, React Router (HashRouter)  
 - **Testing**: Jest, Supertest, React Testing Library, Cypress  
-- **CI/CD**: GitHub Actions  
-- **Despliegue**: Heroku (opcional)  
+- **CI/CD**: GitHub Actions    
 
 ---
 
